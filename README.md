@@ -1,4 +1,4 @@
-# rt1015
-RT1015 Amplifier Driver
+# rt1019
+RT1019 Amplifier Driver
 
-Tested on Lenovo 300e Chromebook Gen 3. Should work for all vilboz chromebooks.
+Tested on Asus CM3401. Should work for all skyrim chromebooks.

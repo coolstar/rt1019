@@ -1,10 +1,10 @@
-#include "rt1015.h"
+#include "rt1019.h"
 #include "registers.h"
 
 #define bool int
 
-static ULONG Rt1015DebugLevel = 100;
-static ULONG Rt1015DebugCatagories = DBG_INIT || DBG_PNP || DBG_IOCTL;
+static ULONG Rt1019DebugLevel = 100;
+static ULONG Rt1019DebugCatagories = DBG_INIT || DBG_PNP || DBG_IOCTL;
 
 NTSTATUS
 DriverEntry(
@@ -16,10 +16,10 @@ DriverEntry(
 	WDF_DRIVER_CONFIG      config;
 	WDF_OBJECT_ATTRIBUTES  attributes;
 
-	Rt1015Print(DEBUG_LEVEL_INFO, DBG_INIT,
+	Rt1019Print(DEBUG_LEVEL_INFO, DBG_INIT,
 		"Driver Entry\n");
 
-	WDF_DRIVER_CONFIG_INIT(&config, Rt1015EvtDeviceAdd);
+	WDF_DRIVER_CONFIG_INIT(&config, Rt1019EvtDeviceAdd);
 
 	WDF_OBJECT_ATTRIBUTES_INIT(&attributes);
 
@@ -36,40 +36,39 @@ DriverEntry(
 
 	if (!NT_SUCCESS(status))
 	{
-		Rt1015Print(DEBUG_LEVEL_ERROR, DBG_INIT,
+		Rt1019Print(DEBUG_LEVEL_ERROR, DBG_INIT,
 			"WdfDriverCreate failed with status 0x%x\n", status);
 	}
 
 	return status;
 }
 
-static NTSTATUS rt1015_reg_write(PRT1015_CONTEXT pDevice, uint16_t reg, uint16_t data)
+static NTSTATUS rt1019_reg_write(PRT1019_CONTEXT pDevice, uint16_t reg, uint8_t data)
 {
-	uint16_t rawdata[2];
-	rawdata[0] = RtlUshortByteSwap(reg);
-	rawdata[1] = RtlUshortByteSwap(data);
+	uint8_t rawdata[3];
+	rawdata[0] = (reg >> 8) & 0xff;
+	rawdata[1] = (reg & 0xff);
+	rawdata[2] = data;
 	return SpbWriteDataSynchronously(&pDevice->I2CContext, rawdata, sizeof(rawdata));
 }
 
 struct reg {
 	UINT16 reg;
-	UINT16 val;
+	UINT8 val;
 };
 
-static NTSTATUS rt1015_reg_read(PRT1015_CONTEXT pDevice, uint16_t reg, uint16_t* data)
+static NTSTATUS rt1019_reg_read(PRT1019_CONTEXT pDevice, uint16_t reg, uint8_t* data)
 {
 	uint16_t reg_swap = RtlUshortByteSwap(reg);
-	uint16_t data_swap = 0;
-	NTSTATUS ret = SpbXferDataSynchronously(&pDevice->I2CContext, &reg_swap, sizeof(uint16_t), &data_swap, sizeof(uint16_t));
-	*data = RtlUshortByteSwap(data_swap);
+	NTSTATUS ret = SpbXferDataSynchronously(&pDevice->I2CContext, &reg_swap, sizeof(uint16_t), data, sizeof(uint8_t));
 	return ret;
 }
 
-static NTSTATUS rt1015_reg_burstWrite(PRT1015_CONTEXT pDevice, struct reg* regs, int regCount) {
+static NTSTATUS rt1019_reg_burstWrite(PRT1019_CONTEXT pDevice, struct reg* regs, int regCount) {
 	NTSTATUS status = STATUS_NO_MEMORY;
 	for (int i = 0; i < regCount; i++) {
 		struct reg* regToSet = &regs[i];
-		status = rt1015_reg_write(pDevice, regToSet->reg, regToSet->val);
+		status = rt1019_reg_write(pDevice, regToSet->reg, regToSet->val);
 		if (!NT_SUCCESS(status)) {
 			return status;
 		}
@@ -169,7 +168,7 @@ Exit:
 
 NTSTATUS
 StartCodec(
-	PRT1015_CONTEXT pDevice
+	PRT1019_CONTEXT pDevice
 ) {
 	NTSTATUS status = STATUS_SUCCESS;
 	if (!pDevice->SetUID) {
@@ -178,60 +177,45 @@ StartCodec(
 	}
 
 	
-	uint16_t val = 0;
-	rt1015_reg_read(pDevice, RT1015_DEVICE_ID, &val);
-	if ((val != RT1015_DEVICE_ID_VAL) && (val != RT1015_DEVICE_ID_VAL2)) {
+	uint8_t val = 0;
+	uint8_t val2 = 0;
+	rt1019_reg_read(pDevice, RT1019_DEV_ID_1, &val);
+	rt1019_reg_read(pDevice, RT1019_DEV_ID_2, &val2);
+	uint16_t dev_id = val << 8 | val2;
+	if ((dev_id != RT1019_DEVICE_ID_VAL) && (dev_id != RT1019_DEVICE_ID_VAL2)) {
 		return STATUS_INVALID_DEVICE_STATE;
 	}
 
 	//left/right diffs
-	// RT1015_DUM_RW1
-	// RT1015_PAD_DRV2
-	// RT1015_SPK_DC_DETECT1
+	// RT1019_IDS_CTRL
 
 	struct reg regsCommon[] = {
-		{RT1015_PLL1, 0x0816},
-		{RT1015_PLL2, 0x0004},
-		{RT1015_CLK_DET, 0x8800},
-		{RT1015_SIL_DET, 0x0143},
-		{RT1015_TDM_MASTER, 0x0000},
-		{RT1015_TDM1_4, 0x0101},
-		{RT1015_PWR4, 0x00B2},
-		{RT1015_PWR9, 0xAA60},
-		{RT1015_SMART_BST_CTRL1, 0xe188},
-		{RT1015_PWR_STATE_CTRL, 0x02ee},
-		{RT1015_MONO_DYNA_CTRL, 0x0010}
+		{RT1019_PWR_STRP_2, 0x04},
+		{RT1019_SDB_CTRL, 0x0b},
+		{RT1019_CLK_TREE_1, 0x80},
+		{RT1019_CLK_TREE_2, 0x50},
+		{RT1019_CLK_TREE_3, 0x23},
+		{RT1019_PLL_1, 0x02},
+		{RT1019_PLL_2, 0x0a},
+		{RT1019_PLL_3, 0x84},
+		{RT1019_TDM_1, 0x00},
+		{RT1019_TDM_2, 0xd0},
+		{RT1019_TDM_3, 0x23}
 	};
 
-	status = rt1015_reg_burstWrite(pDevice, regsCommon, sizeof(regsCommon) / sizeof(struct reg));
+	status = rt1019_reg_burstWrite(pDevice, regsCommon, sizeof(regsCommon) / sizeof(struct reg));
 	if (!NT_SUCCESS(status)) {
 		return status;
 	}
 
 	if (pDevice->UID == 0) {
-		status = rt1015_reg_write(pDevice, RT1015_DUM_RW1, 0x0006);
-		if (!NT_SUCCESS(status)) {
-			return status;
-		}
-		status = rt1015_reg_write(pDevice, RT1015_PAD_DRV2, 0x004c); //don't need this
-		if (!NT_SUCCESS(status)) {
-			return status;
-		}
-		status = rt1015_reg_write(pDevice, RT1015_SPK_DC_DETECT1, 0x1c6d);
+		status = rt1019_reg_write(pDevice, RT1019_IDS_CTRL, 0x04);
 		if (!NT_SUCCESS(status)) {
 			return status;
 		}
 	}
 	else if (pDevice->UID == 1) {
-		status = rt1015_reg_write(pDevice, RT1015_DUM_RW1, 0x0007);
-		if (!NT_SUCCESS(status)) {
-			return status;
-		}
-		status = rt1015_reg_write(pDevice, RT1015_PAD_DRV2, 0x005c);
-		if (!NT_SUCCESS(status)) {
-			return status;
-		}
-		status = rt1015_reg_write(pDevice, RT1015_SPK_DC_DETECT1, 0x1c6c);
+		status = rt1019_reg_write(pDevice, RT1019_IDS_CTRL, 0x05);
 		if (!NT_SUCCESS(status)) {
 			return status;
 		}
@@ -243,11 +227,11 @@ StartCodec(
 
 NTSTATUS
 StopCodec(
-	PRT1015_CONTEXT pDevice
+	PRT1019_CONTEXT pDevice
 ) {
 	NTSTATUS status;
 
-	status = rt1015_reg_write(pDevice, RT1015_RESET, 0);
+	status = rt1019_reg_write(pDevice, RT1019_RESET, 0);
 
 	pDevice->DevicePoweredOn = FALSE;
 	return status;
@@ -257,7 +241,7 @@ int CsAudioArg2 = 1;
 
 VOID
 CSAudioRegisterEndpoint(
-	PRT1015_CONTEXT pDevice
+	PRT1019_CONTEXT pDevice
 ) {
 	CsAudioArg arg;
 	RtlZeroMemory(&arg, sizeof(CsAudioArg));
@@ -269,7 +253,7 @@ CSAudioRegisterEndpoint(
 
 VOID
 CsAudioCallbackFunction(
-	IN PRT1015_CONTEXT pDevice,
+	IN PRT1019_CONTEXT pDevice,
 	CsAudioArg* arg,
 	PVOID Argument2
 ) {
@@ -328,7 +312,7 @@ Status
 
 --*/
 {
-	PRT1015_CONTEXT pDevice = GetDeviceContext(FxDevice);
+	PRT1019_CONTEXT pDevice = GetDeviceContext(FxDevice);
 	BOOLEAN fSpbResourceFound = FALSE;
 	NTSTATUS status = STATUS_INSUFFICIENT_RESOURCES;
 
@@ -426,7 +410,7 @@ Status
 
 --*/
 {
-	PRT1015_CONTEXT pDevice = GetDeviceContext(FxDevice);
+	PRT1019_CONTEXT pDevice = GetDeviceContext(FxDevice);
 	NTSTATUS status = STATUS_SUCCESS;
 
 	UNREFERENCED_PARAMETER(FxResourcesTranslated);
@@ -451,7 +435,7 @@ OnSelfManagedIoInit(
 	_In_
 	WDFDEVICE FxDevice
 ) {
-	PRT1015_CONTEXT pDevice = GetDeviceContext(FxDevice);
+	PRT1019_CONTEXT pDevice = GetDeviceContext(FxDevice);
 	NTSTATUS status = STATUS_SUCCESS;
 
 	// CS Audio Callback
@@ -511,7 +495,7 @@ Status
 {
 	UNREFERENCED_PARAMETER(FxPreviousState);
 
-	PRT1015_CONTEXT pDevice = GetDeviceContext(FxDevice);
+	PRT1019_CONTEXT pDevice = GetDeviceContext(FxDevice);
 	NTSTATUS status = STATUS_SUCCESS;
 
 	status = StartCodec(pDevice);
@@ -543,7 +527,7 @@ Status
 {
 	UNREFERENCED_PARAMETER(FxPreviousState);
 
-	PRT1015_CONTEXT pDevice = GetDeviceContext(FxDevice);
+	PRT1019_CONTEXT pDevice = GetDeviceContext(FxDevice);
 	NTSTATUS status = STATUS_SUCCESS;
 
 	status = StopCodec(pDevice);
@@ -552,7 +536,7 @@ Status
 }
 
 NTSTATUS
-Rt1015EvtDeviceAdd(
+Rt1019EvtDeviceAdd(
 	IN WDFDRIVER       Driver,
 	IN PWDFDEVICE_INIT DeviceInit
 )
@@ -562,14 +546,14 @@ Rt1015EvtDeviceAdd(
 	WDF_OBJECT_ATTRIBUTES         attributes;
 	WDFDEVICE                     device;
 	WDFQUEUE                      queue;
-	PRT1015_CONTEXT               devContext;
+	PRT1019_CONTEXT               devContext;
 
 	UNREFERENCED_PARAMETER(Driver);
 
 	PAGED_CODE();
 
-	Rt1015Print(DEBUG_LEVEL_INFO, DBG_PNP,
-		"Rt1015EvtDeviceAdd called\n");
+	Rt1019Print(DEBUG_LEVEL_INFO, DBG_PNP,
+		"Rt1019EvtDeviceAdd called\n");
 
 	{
 		WDF_PNPPOWER_EVENT_CALLBACKS pnpCallbacks;
@@ -588,7 +572,7 @@ Rt1015EvtDeviceAdd(
 	// Setup the device context
 	//
 
-	WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&attributes, RT1015_CONTEXT);
+	WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&attributes, RT1019_CONTEXT);
 
 	//
 	// Create a framework device object.This call will in turn create
@@ -600,7 +584,7 @@ Rt1015EvtDeviceAdd(
 
 	if (!NT_SUCCESS(status))
 	{
-		Rt1015Print(DEBUG_LEVEL_ERROR, DBG_PNP,
+		Rt1019Print(DEBUG_LEVEL_ERROR, DBG_PNP,
 			"WdfDeviceCreate failed with status code 0x%x\n", status);
 
 		return status;
@@ -616,7 +600,7 @@ Rt1015EvtDeviceAdd(
 
 	WDF_IO_QUEUE_CONFIG_INIT_DEFAULT_QUEUE(&queueConfig, WdfIoQueueDispatchParallel);
 
-	queueConfig.EvtIoInternalDeviceControl = Rt1015EvtInternalDeviceControl;
+	queueConfig.EvtIoInternalDeviceControl = Rt1019EvtInternalDeviceControl;
 
 	status = WdfIoQueueCreate(device,
 		&queueConfig,
@@ -626,7 +610,7 @@ Rt1015EvtDeviceAdd(
 
 	if (!NT_SUCCESS(status))
 	{
-		Rt1015Print(DEBUG_LEVEL_ERROR, DBG_PNP,
+		Rt1019Print(DEBUG_LEVEL_ERROR, DBG_PNP,
 			"WdfIoQueueCreate failed 0x%x\n", status);
 
 		return status;
@@ -652,7 +636,7 @@ Rt1015EvtDeviceAdd(
 
 	if (!NT_SUCCESS(status))
 	{
-		Rt1015Print(DEBUG_LEVEL_ERROR, DBG_PNP,
+		Rt1019Print(DEBUG_LEVEL_ERROR, DBG_PNP,
 			"WdfIoQueueCreate failed 0x%x\n", status);
 
 		return status;
@@ -662,7 +646,7 @@ Rt1015EvtDeviceAdd(
 }
 
 VOID
-Rt1015EvtInternalDeviceControl(
+Rt1019EvtInternalDeviceControl(
 	IN WDFQUEUE     Queue,
 	IN WDFREQUEST   Request,
 	IN size_t       OutputBufferLength,
@@ -672,7 +656,7 @@ Rt1015EvtInternalDeviceControl(
 {
 	NTSTATUS            status = STATUS_SUCCESS;
 	WDFDEVICE           device;
-	PRT1015_CONTEXT     devContext;
+	PRT1019_CONTEXT     devContext;
 
 	UNREFERENCED_PARAMETER(OutputBufferLength);
 	UNREFERENCED_PARAMETER(InputBufferLength);

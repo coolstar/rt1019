@@ -18,12 +18,12 @@ Revision History:
 
 --*/
 
-#include "rt1015.h"
+#include "rt1019.h"
 #include "spb.h"
 #include <reshub.h>
 
-static ULONG Rt1015DebugLevel = 100;
-static ULONG Rt1015DebugCatagories = DBG_INIT || DBG_PNP || DBG_IOCTL;
+static ULONG Rt1019DebugLevel = 100;
+static ULONG Rt1019DebugCatagories = DBG_INIT || DBG_PNP || DBG_IOCTL;
 
 NTSTATUS
 SpbDoWriteDataSynchronously(
@@ -65,14 +65,14 @@ NTSTATUS Status indicating success or failure
 		status = WdfMemoryCreate(
 			WDF_NO_OBJECT_ATTRIBUTES,
 			NonPagedPool,
-			RT1015_POOL_TAG,
+			RT1019_POOL_TAG,
 			length,
 			&memory,
 			(PVOID*)&buffer);
 
 		if (!NT_SUCCESS(status))
 		{
-			Rt1015Print(
+			Rt1019Print(
 				DEBUG_LEVEL_ERROR,
 				DBG_IOCTL,
 				"Error allocating memory for Spb write - %!STATUS!",
@@ -107,7 +107,7 @@ NTSTATUS Status indicating success or failure
 
 	if (!NT_SUCCESS(status))
 	{
-		Rt1015Print(
+		Rt1019Print(
 			DEBUG_LEVEL_ERROR,
 			DBG_IOCTL,
 			"Error writing to Spb - %!STATUS!",
@@ -209,7 +209,7 @@ NTSTATUS Status indicating success or failure
 
 	if (!NT_SUCCESS(status))
 	{
-		Rt1015Print(
+		Rt1019Print(
 			DEBUG_LEVEL_ERROR,
 			DBG_IOCTL,
 			"Error setting address pointer for Spb read - %!STATUS!",
@@ -222,14 +222,14 @@ NTSTATUS Status indicating success or failure
 		status = WdfMemoryCreate(
 			WDF_NO_OBJECT_ATTRIBUTES,
 			NonPagedPool,
-			RT1015_POOL_TAG,
+			RT1019_POOL_TAG,
 			Length,
 			&memory,
 			(PVOID*)&buffer);
 
 		if (!NT_SUCCESS(status))
 		{
-			Rt1015Print(
+			Rt1019Print(
 				DEBUG_LEVEL_ERROR,
 				DBG_IOCTL,
 				"Error allocating memory for Spb read - %!STATUS!",
@@ -264,7 +264,7 @@ NTSTATUS Status indicating success or failure
 	if (!NT_SUCCESS(status) ||
 		bytesRead != Length)
 	{
-		Rt1015Print(
+		Rt1019Print(
 			DEBUG_LEVEL_ERROR,
 			DBG_IOCTL,
 			"Error reading from Spb - %!STATUS!",
@@ -374,7 +374,7 @@ NTSTATUS Status indicating success or failure
 
 	if (!NT_SUCCESS(status))
 	{
-		Rt1015Print(
+		Rt1019Print(
 			DEBUG_LEVEL_ERROR,
 			DBG_IOCTL,
 			"Error creating IoTarget object - %!STATUS!",
@@ -396,7 +396,7 @@ NTSTATUS Status indicating success or failure
 
 	if (!NT_SUCCESS(status))
 	{
-		Rt1015Print(
+		Rt1019Print(
 			DEBUG_LEVEL_ERROR,
 			DBG_IOCTL,
 			"Error creating Spb resource hub path string - %!STATUS!",
@@ -417,7 +417,7 @@ NTSTATUS Status indicating success or failure
 
 	if (!NT_SUCCESS(status))
 	{
-		Rt1015Print(
+		Rt1019Print(
 			DEBUG_LEVEL_ERROR,
 			DBG_IOCTL,
 			"Error opening Spb target for communication - %!STATUS!",
@@ -432,14 +432,14 @@ NTSTATUS Status indicating success or failure
 	status = WdfMemoryCreate(
 		WDF_NO_OBJECT_ATTRIBUTES,
 		NonPagedPool,
-		RT1015_POOL_TAG,
+		RT1019_POOL_TAG,
 		DEFAULT_SPB_BUFFER_SIZE,
 		&SpbContext->WriteMemory,
 		NULL);
 
 	if (!NT_SUCCESS(status))
 	{
-		Rt1015Print(
+		Rt1019Print(
 			DEBUG_LEVEL_ERROR,
 			DBG_IOCTL,
 			"Error allocating default memory for Spb write - %!STATUS!",
@@ -450,14 +450,14 @@ NTSTATUS Status indicating success or failure
 	status = WdfMemoryCreate(
 		WDF_NO_OBJECT_ATTRIBUTES,
 		NonPagedPool,
-		RT1015_POOL_TAG,
+		RT1019_POOL_TAG,
 		DEFAULT_SPB_BUFFER_SIZE,
 		&SpbContext->ReadMemory,
 		NULL);
 
 	if (!NT_SUCCESS(status))
 	{
-		Rt1015Print(
+		Rt1019Print(
 			DEBUG_LEVEL_ERROR,
 			DBG_IOCTL,
 			"Error allocating default memory for Spb read - %!STATUS!",
@@ -474,7 +474,7 @@ NTSTATUS Status indicating success or failure
 
 	if (!NT_SUCCESS(status))
 	{
-		Rt1015Print(
+		Rt1019Print(
 			DEBUG_LEVEL_ERROR,
 			DBG_IOCTL,
 			"Error creating Spb Waitlock - %!STATUS!",

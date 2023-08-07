@@ -1,5 +1,5 @@
-#if !defined(_RT1015_H_)
-#define _RT1015_H_
+#if !defined(_RT1019_H_)
+#define _RT1019_H_
 
 #pragma warning(disable:4200)  // suppress nameless struct/union warning
 #pragma warning(disable:4201)  // suppress nameless struct/union warning
@@ -23,9 +23,9 @@
 // String definitions
 //
 
-#define DRIVERNAME                 "rt1015.sys: "
+#define DRIVERNAME                 "rt1019.sys: "
 
-#define RT1015_POOL_TAG            (ULONG) '5101'
+#define RT1019_POOL_TAG            (ULONG) '9101'
 
 #define true 1
 #define false 0
@@ -62,7 +62,7 @@ typedef struct CSAUDIOARG {
 	};
 } CsAudioArg, * PCsAudioArg;
 
-typedef struct _RT1015_CONTEXT
+typedef struct _RT1019_CONTEXT
 {
 
 	WDFDEVICE FxDevice;
@@ -81,9 +81,9 @@ typedef struct _RT1015_CONTEXT
 
 	BOOLEAN CSAudioManaged;
 
-} RT1015_CONTEXT, *PRT1015_CONTEXT;
+} RT1019_CONTEXT, *PRT1019_CONTEXT;
 
-WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(RT1015_CONTEXT, GetDeviceContext)
+WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(RT1019_CONTEXT, GetDeviceContext)
 
 //
 // Function definitions
@@ -91,13 +91,13 @@ WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(RT1015_CONTEXT, GetDeviceContext)
 
 DRIVER_INITIALIZE DriverEntry;
 
-EVT_WDF_DRIVER_UNLOAD Rt1015DriverUnload;
+EVT_WDF_DRIVER_UNLOAD Rt1019DriverUnload;
 
-EVT_WDF_DRIVER_DEVICE_ADD Rt1015EvtDeviceAdd;
+EVT_WDF_DRIVER_DEVICE_ADD Rt1019EvtDeviceAdd;
 
-EVT_WDFDEVICE_WDM_IRP_PREPROCESS Rt1015EvtWdmPreprocessMnQueryId;
+EVT_WDFDEVICE_WDM_IRP_PREPROCESS Rt1019EvtWdmPreprocessMnQueryId;
 
-EVT_WDF_IO_QUEUE_IO_INTERNAL_DEVICE_CONTROL Rt1015EvtInternalDeviceControl;
+EVT_WDF_IO_QUEUE_IO_INTERNAL_DEVICE_CONTROL Rt1019EvtInternalDeviceControl;
 
 //
 // Helper macros
@@ -112,16 +112,16 @@ EVT_WDF_IO_QUEUE_IO_INTERNAL_DEVICE_CONTROL Rt1015EvtInternalDeviceControl;
 #define DBG_IOCTL 4
 
 #if 0
-#define Rt1015Print(dbglevel, dbgcatagory, fmt, ...) {          \
-    if (Rt1015DebugLevel >= dbglevel &&                         \
-        (Rt1015DebugCatagories && dbgcatagory))                 \
+#define Rt1019Print(dbglevel, dbgcatagory, fmt, ...) {          \
+    if (Rt1019DebugLevel >= dbglevel &&                         \
+        (Rt1019DebugCatagories && dbgcatagory))                 \
 	    {                                                           \
         DbgPrint(DRIVERNAME);                                   \
         DbgPrint(fmt, __VA_ARGS__);                             \
 	    }                                                           \
 }
 #else
-#define Rt1015Print(dbglevel, fmt, ...) {                       \
+#define Rt1019Print(dbglevel, fmt, ...) {                       \
 }
 #endif
 

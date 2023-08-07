@@ -4,7 +4,7 @@ Copyright (c) Microsoft Corporation All Rights Reserved
 
 Module Name:
 
-    rt1015.rc
+    rt1019.rc
 
 Abstract:
 
@@ -14,9 +14,9 @@ Abstract:
 
 #define VER_FILETYPE                VFT_DRV
 #define VER_FILESUBTYPE             VFT2_DRV_SOUND
-#define VER_FILEDESCRIPTION_STR     "Realtek ALC1015 I2S Amplifier"
-#define VER_INTERNALNAME_STR        "rt1015.sys"
-#define VER_ORIGINALFILENAME_STR    "rt1015.sys"
+#define VER_FILEDESCRIPTION_STR     "Realtek ALC1019 I2S Amplifier"
+#define VER_INTERNALNAME_STR        "rt1019.sys"
+#define VER_ORIGINALFILENAME_STR    "rt1019.sys"
 
 #define VER_LEGALCOPYRIGHT_YEARS    "2023"
 #define VER_LEGALCOPYRIGHT_STR	    "Copyright (C) " VER_LEGALCOPYRIGHT_YEARS " CoolStar."
@@ -36,6 +36,6 @@ Abstract:
 #define VER_FILEOS				VOS_NT_WINDOWS32
 
 #define VER_COMPANYNAME_STR         "CoolStar"
-#define VER_PRODUCTNAME_STR         "Realtek ALC1015 I2S Amplifier"
+#define VER_PRODUCTNAME_STR         "Realtek ALC1019 I2S Amplifier"
 
 #include "common.ver"

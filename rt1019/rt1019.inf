@@ -3,10 +3,10 @@
 ;Copyright (c) CoolStar.  All rights reserved.
 ;
 ;Module Name:
-;    rt1015.inf
+;    rt1019.inf
 ;
 ;Abstract:
-;    INF file for installing the Realtek ALC1015 I2S Amplifier Driver 
+;    INF file for installing the Realtek ALC1019 I2S Amplifier Driver 
 ;
 ;
 ;--*/
@@ -17,7 +17,7 @@ Class       = Media
 ClassGuid   = {4d36e96c-e325-11ce-bfc1-08002be10318}
 Provider    = CoolStar
 DriverVer   = 10/7/2022,1.0.0
-CatalogFile = rt1015.cat
+CatalogFile = rt1019.cat
 PnpLockdown=1
 
 [DestinationDirs]
@@ -29,10 +29,10 @@ DefaultDestDir = 12
 1 = %DiskId1%,,,""
 
 [SourceDisksFiles]
-rt1015.sys  = 1,,
+rt1019.sys  = 1,,
 
 ;*****************************************
-; rt1015  Install Section
+; rt1019  Install Section
 ;*****************************************
 
 [Manufacturer]
@@ -41,30 +41,30 @@ rt1015.sys  = 1,,
 ; Decorated model section take precedence over undecorated 
 ; ones on XP and later.
 [Standard.NTAMD64]
-%rt1015.DeviceDesc%=Rt1015_Device, ACPI\10EC1015
+%rt1019.DeviceDesc%=Rt1019_Device, ACPI\10EC1019
 
-[Rt1015_Device.NT]
+[Rt1019_Device.NT]
 CopyFiles=Drivers_Dir
 
 [Drivers_Dir]
-rt1015.sys
+rt1019.sys
 
 ;-------------- Service installation
-[Rt1015_Device.NT.Services]
-AddService = rt1015,%SPSVCINST_ASSOCSERVICE%, Rt1015_Service_Inst
+[Rt1019_Device.NT.Services]
+AddService = rt1019,%SPSVCINST_ASSOCSERVICE%, Rt1019_Service_Inst
 
-; -------------- rt1015 driver install sections
-[Rt1015_Service_Inst]
-DisplayName    = %rt1015.SVCDESC%
+; -------------- rt1019 driver install sections
+[Rt1019_Service_Inst]
+DisplayName    = %rt1019.SVCDESC%
 ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
 StartType      = 3               ; SERVICE_DEMAND_START 
 ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
-ServiceBinary  = %12%\rt1015.sys
+ServiceBinary  = %12%\rt1019.sys
 LoadOrderGroup = Base
 
 [Strings]
 SPSVCINST_ASSOCSERVICE= 0x00000002
 StdMfg                 = "CoolStar"
-DiskId1                = "Realtek 1015 Installation Disk #1"
-rt1015.DeviceDesc = "Realtek ALC1015 I2S Amplifier"
-rt1015.SVCDESC    = "Realtek 1015 Service"
+DiskId1                = "Realtek 1019 Installation Disk #1"
+rt1019.DeviceDesc = "Realtek ALC1019 I2S Amplifier"
+rt1019.SVCDESC    = "Realtek 1019 Service"

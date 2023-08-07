@@ -19,47 +19,42 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{3DAE7ED3-003A-4495-8352-3D7B5B5D846F}</ProjectGuid>
-    <TemplateGuid>{4605da2c-74a5-4865-98e1-152ef136825f}</TemplateGuid>
+    <ProjectGuid>{36580C07-EDC3-4C2B-B45F-6AB017E01A5D}</ProjectGuid>
+    <TemplateGuid>{1bc93793-694f-48fe-9372-81e2b05556fd}</TemplateGuid>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
     <Configuration>Win8.1 Debug</Configuration>
     <Platform Condition="'$(Platform)' == ''">Win32</Platform>
-    <RootNamespace>rt1015_Package</RootNamespace>
-    <WindowsTargetPlatformVersion>$(LatestTargetPlatformVersion)</WindowsTargetPlatformVersion>
+    <RootNamespace>rt1019</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <TargetVersion>Windows10</TargetVersion>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
-    <ConfigurationType>Utility</ConfigurationType>
-    <DriverType>Package</DriverType>
-    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>KMDF</DriverType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <TargetVersion>Windows10</TargetVersion>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
-    <ConfigurationType>Utility</ConfigurationType>
-    <DriverType>Package</DriverType>
-    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>KMDF</DriverType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <TargetVersion>Windows10</TargetVersion>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
-    <ConfigurationType>Utility</ConfigurationType>
-    <DriverType>Package</DriverType>
-    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>KMDF</DriverType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <TargetVersion>Windows10</TargetVersion>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
-    <ConfigurationType>Utility</ConfigurationType>
-    <DriverType>Package</DriverType>
-    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>KMDF</DriverType>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -71,83 +66,92 @@
   <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
-    <EnableDeployment>False</EnableDeployment>
-    <RemoveDriver>True</RemoveDriver>
-    <HardwareIdString />
-    <CommandLine />
-    <DeployFiles />
-    <EnableVerifier>False</EnableVerifier>
-    <AllDrivers>False</AllDrivers>
-    <VerifyProjectOutput>True</VerifyProjectOutput>
-    <VerifyDrivers />
-    <VerifyFlags>133563</VerifyFlags>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
-    <EnableDeployment>False</EnableDeployment>
-    <RemoveDriver>True</RemoveDriver>
-    <HardwareIdString />
-    <CommandLine />
-    <DeployFiles />
-    <EnableVerifier>False</EnableVerifier>
-    <AllDrivers>False</AllDrivers>
-    <VerifyProjectOutput>True</VerifyProjectOutput>
-    <VerifyDrivers />
-    <VerifyFlags>133563</VerifyFlags>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
-    <EnableDeployment>False</EnableDeployment>
-    <RemoveDriver>True</RemoveDriver>
-    <HardwareIdString />
-    <CommandLine />
-    <DeployFiles />
-    <EnableVerifier>False</EnableVerifier>
-    <AllDrivers>False</AllDrivers>
-    <VerifyProjectOutput>True</VerifyProjectOutput>
-    <VerifyDrivers />
-    <VerifyFlags>133563</VerifyFlags>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
-    <EnableDeployment>False</EnableDeployment>
-    <RemoveDriver>True</RemoveDriver>
-    <HardwareIdString />
-    <CommandLine />
-    <DeployFiles />
-    <EnableVerifier>False</EnableVerifier>
-    <AllDrivers>False</AllDrivers>
-    <VerifyProjectOutput>True</VerifyProjectOutput>
-    <VerifyDrivers />
-    <VerifyFlags>133563</VerifyFlags>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WppEnabled>true</WppEnabled>
+      <WppScanConfigurationData Condition="'%(ClCompile. ScanConfigurationData)'  == ''">trace.h</WppScanConfigurationData>
+      <WppKernelMode>true</WppKernelMode>
+      <TreatWarningAsError>false</TreatWarningAsError>
+    </ClCompile>
+    <Inf>
+      <TimeStamp>1.0.0</TimeStamp>
+    </Inf>
     <DriverSign>
       <FileDigestAlgorithm>SHA256</FileDigestAlgorithm>
     </DriverSign>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WppEnabled>true</WppEnabled>
+      <WppScanConfigurationData Condition="'%(ClCompile. ScanConfigurationData)'  == ''">trace.h</WppScanConfigurationData>
+      <WppKernelMode>true</WppKernelMode>
+      <TreatWarningAsError>false</TreatWarningAsError>
+    </ClCompile>
+    <Inf>
+      <TimeStamp>1.0.0</TimeStamp>
+    </Inf>
     <DriverSign>
       <FileDigestAlgorithm>SHA256</FileDigestAlgorithm>
     </DriverSign>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WppEnabled>true</WppEnabled>
+      <WppScanConfigurationData Condition="'%(ClCompile. ScanConfigurationData)'  == ''">trace.h</WppScanConfigurationData>
+      <WppKernelMode>true</WppKernelMode>
+      <TreatWarningAsError>false</TreatWarningAsError>
+    </ClCompile>
+    <Inf>
+      <TimeStamp>1.0.0</TimeStamp>
+    </Inf>
     <DriverSign>
       <FileDigestAlgorithm>SHA256</FileDigestAlgorithm>
     </DriverSign>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WppEnabled>true</WppEnabled>
+      <WppScanConfigurationData Condition="'%(ClCompile. ScanConfigurationData)'  == ''">trace.h</WppScanConfigurationData>
+      <WppKernelMode>true</WppKernelMode>
+      <TreatWarningAsError>false</TreatWarningAsError>
+    </ClCompile>
+    <Inf>
+      <TimeStamp>1.0.0</TimeStamp>
+    </Inf>
     <DriverSign>
       <FileDigestAlgorithm>SHA256</FileDigestAlgorithm>
     </DriverSign>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Inf Include="rt1019.inf" />
+  </ItemGroup>
+  <ItemGroup>
+    <FilesToPackage Include="$(TargetPath)" />
     <FilesToPackage Include="@(Inf->'%(CopyOutput)')" Condition="'@(Inf)'!=''" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\rt1015\rt1015.vcxproj">
-      <Project>{36580c07-edc3-4c2b-b45f-6ab017e01a5d}</Project>
-    </ProjectReference>
+    <ClInclude Include="registers.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="spb.h" />
+    <ClInclude Include="trace.h" />
+    <ClInclude Include="rt1019.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="spb.c" />
+    <ClCompile Include="rt1019.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="rt1019.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
