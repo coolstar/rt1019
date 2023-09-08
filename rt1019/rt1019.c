@@ -166,6 +166,51 @@ Exit:
 	return status;
 }
 
+static Platform GetPlatform() {
+	int cpuinfo[4];
+	__cpuidex(cpuinfo, 0, 0);
+
+	int temp = cpuinfo[2];
+	cpuinfo[2] = cpuinfo[3];
+	cpuinfo[3] = temp;
+
+	char vendorName[13];
+	RtlZeroMemory(vendorName, 13);
+	memcpy(vendorName, &cpuinfo[1], 12);
+
+	__cpuidex(cpuinfo, 1, 0);
+
+	UINT16 family = (cpuinfo[0] >> 8) & 0xF;
+	UINT8 model = (cpuinfo[0] >> 4) & 0xF;
+	UINT8 stepping = cpuinfo[0] & 0xF;
+	if (family == 0xF || family == 0x6) {
+		model += (((cpuinfo[0] >> 16) & 0xF) << 4);
+	}
+	if (family == 0xF) {
+		family += (cpuinfo[0] >> 20) & 0xFF;
+	}
+
+	if (strcmp(vendorName, "AuthenticAMD") == 0) {
+		if (family == 25 && model == 80)
+			return PlatformRyzenCezanne;
+		else if (family == 23 && model == 160)
+			return PlatformRyzenMendocino; //family 23 for Mendocino (model 160)
+		else
+			return PlatformRyzenPicassoDali; //family 23 for Picasso (model 24) / Dali (model 32)
+	}
+	else if (strcmp(vendorName, "GenuineIntel") == 0) {
+		if (model == 122 || model == 92) //92 = Apollo Lake but keep for compatibility
+			return PlatformGeminiLake;
+		else if (model == 156) //Jasper Lake, but use same settings as CML
+			return PlatformCometLake;
+		else if (model == 142)
+			return PlatformCometLake;
+		else
+			return PlatformTigerLake; //should be 140
+	}
+	return PlatformNone;
+}
+
 NTSTATUS
 StartCodec(
 	PRT1019_CONTEXT pDevice
@@ -189,23 +234,46 @@ StartCodec(
 	//left/right diffs
 	// RT1019_IDS_CTRL
 
-	struct reg regsCommon[] = {
-		{RT1019_PWR_STRP_2, 0x04},
-		{RT1019_SDB_CTRL, 0x0b},
-		{RT1019_CLK_TREE_1, 0x80},
-		{RT1019_CLK_TREE_2, 0x50},
-		{RT1019_CLK_TREE_3, 0x23},
-		{RT1019_PLL_1, 0x02},
-		{RT1019_PLL_2, 0x0a},
-		{RT1019_PLL_3, 0x84},
-		{RT1019_TDM_1, 0x00},
-		{RT1019_TDM_2, 0xd0},
-		{RT1019_TDM_3, 0x23}
-	};
+	Platform platform = GetPlatform();
+	if (platform == PlatformRyzenMendocino) {
+		struct reg regsCommonMendocino[] = {
+			{RT1019_PWR_STRP_2, 0x04},
+			{RT1019_SDB_CTRL, 0x0b},
+			{RT1019_CLK_TREE_1, 0x80},
+			{RT1019_CLK_TREE_2, 0x50},
+			{RT1019_CLK_TREE_3, 0x23},
+			{RT1019_PLL_1, 0x02},
+			{RT1019_PLL_2, 0x0a},
+			{RT1019_PLL_3, 0x84},
+			{RT1019_TDM_1, 0x00},
+			{RT1019_TDM_2, 0xd0},
+			{RT1019_TDM_3, 0x23}
+		};
 
-	status = rt1019_reg_burstWrite(pDevice, regsCommon, sizeof(regsCommon) / sizeof(struct reg));
-	if (!NT_SUCCESS(status)) {
-		return status;
+		status = rt1019_reg_burstWrite(pDevice, regsCommonMendocino, sizeof(regsCommonMendocino) / sizeof(struct reg));
+		if (!NT_SUCCESS(status)) {
+			return status;
+		}
+	}
+	else {
+		struct reg regsCommonCezanne[] = {
+			{RT1019_PWR_STRP_2, 0x34},
+			{RT1019_SDB_CTRL, 0x0b},
+			{RT1019_CLK_TREE_1, 0x80},
+			{RT1019_CLK_TREE_2, 0x51},
+			{RT1019_CLK_TREE_3, 0x23},
+			{RT1019_PLL_1, 0x00},
+			{RT1019_PLL_2, 0x3e},
+			{RT1019_PLL_3, 0x86},
+			{RT1019_TDM_1, 0x03},
+			{RT1019_TDM_2, 0x02},
+			{RT1019_TDM_3, 0x01}
+		};
+
+		status = rt1019_reg_burstWrite(pDevice, regsCommonCezanne, sizeof(regsCommonCezanne) / sizeof(struct reg));
+		if (!NT_SUCCESS(status)) {
+			return status;
+		}
 	}
 
 	if (pDevice->UID == 0) {

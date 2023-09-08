@@ -30,6 +30,16 @@
 #define true 1
 #define false 0
 
+typedef enum platform {
+	PlatformNone,
+	PlatformRyzenPicassoDali,
+	PlatformRyzenCezanne,
+	PlatformRyzenMendocino,
+	PlatformGeminiLake,
+	PlatformCometLake,
+	PlatformTigerLake
+} Platform;
+
 typedef enum {
 	CSAudioEndpointTypeDSP,
 	CSAudioEndpointTypeSpeaker,
